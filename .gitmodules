@@ -1,0 +1,3 @@
+[submodule "Tex/xelatex-bsuir-std"]
+	path = Tex/xelatex-bsuir-std
+	url = https://github.com/FileBin/xelatex-bsuir-std

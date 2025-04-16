@@ -1,0 +1,16 @@
+\renewcommand \contentsname {\centerline{\bfseries\large{\MakeUppercase{содержание}}}}
+%Слово СОДЕРЖАНИЕ записывают прописными буквами полужирным
+%шрифтом 14–16 пунктов и располагают по центру строки. 
+% Устанавливаем нумерацию страниц на 5
+\setcounter{page}{5}
+
+
+
+% Зачем: Не захламлять основной файл
+% Примечание: \small\selectfont злостный хак, чтобы уменьшить размер шрифта в ToC 
+{
+	\normalsize\selectfont
+	\tableofcontents
+	
+	\newpage
+}
