@@ -12,15 +12,35 @@
 	\label{fig:test1}
 \end{figure}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.9]{test2_full.jpg}
+	\caption{Название }
+	\label{fig:test2}
+\end{figure}
+
 \subsection{Оценка эффективности}
-\subsection{Оценка ресурсов при работе голосового помощника}
 
 Для объективного анализа нагрузки голосового помошника на одноплатный компьютер был проведён эксперимент с использованием двух поколений аппаратных платформ:
 \begin{itemize}
 	\item Raspberry Pi 2 Model B Rev 1.1;
-	\item Raspberry Pi 4 Model B.
+	\item Raspberry Pi 4 Model B Rev 1.5.
 \end{itemize}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{fastfetch_RaspberryPi2.jpg}
+	\caption{вывод программы fastfetch}
+	\label{fig:fastfetch_RaspberryPi2}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.9]{useMemoryRaspberryPi2.jpg}
+	\caption{вывод программы btop о используемой памяти голосовыйм помошником}
+	\label{fig:useMemoryRaspberryPi2}
+\end{figure}
 
 \begin{table}[H]
 	\caption{Используемые ресурсы при работе голосового помощника}
@@ -37,9 +57,9 @@
 		\hline  
 		& CPU & RAM \\
 		\hline  
-		1 Raspberry Pi 2 Model B Rev 1.1  &  &  \\ 
+		1 Raspberry Pi 2 Model B Rev 1.1  & 10-20\%  & 205Mb  \\ 
 		\hline  
-		2 Raspberry Pi 4 Model B &  & \\ 
+		2 Raspberry Pi 4 Model B Rev 1.5 & 2-5\% & 205Mb \\ 
 		\hline  
 	\end{tblr}
 \end{table}
