@@ -1,5 +1,289 @@
-\section*{Приложение А (обязательное) Листинг программного обеспечения}
+\section*{Приложение А}
+\vspace{-5mm} % Уменьшает отступ
+\section*{\lowercase{(обязательное)}}
+\vspace{-5mm} % Уменьшает отступ
+\section*{Л\lowercase{истинг программного обеспечения}}
 \addcontentsline{toc}{section}{Приложение А (обязательное) Листинг программного обеспечения}
+
+
+
+\begin{verbatim}
+main.cpp
+	
+#include "voice_assistant.h"
+
+int main() {
+	Core::VoiceAssistant assistant;
+	assistant.run();
+	return 0;
+}
+
+voice_assistant.h
+
+#pragma once
+#include "command_manager.h"
+#include "speech_recognizer.h"
+#include <memory>
+
+namespace Core {
+	class VoiceAssistant {
+		public:
+		VoiceAssistant();
+		void run();
+		
+		private:
+		std::unique_ptr<Speech::SpeechRecognizer>
+		 _recognizer;
+		Commands::CommandManager _commandManager;
+		
+		void processCommand(const std::string& text);
+	};
+} // namespace Core
+
+voice_assistant.cpp
+
+#include "voice_assistant.h"
+
+namespace Core {
+	VoiceAssistant::VoiceAssistant() {
+		_recognizer = std::make_unique<
+		Speech::SpeechRecognizer>(
+		"../../Resources/models/"
+		"vosk-model-small-ru-0.22",
+		"[\"алиса\", \"включить станок\",
+		 \"выключить станок\", \"подать "
+		"масло\"]");
+	}
+	
+	void VoiceAssistant::processCommand(
+	const std::string& text) {
+		_commandManager.process(text);
+	}
+	
+	void VoiceAssistant::run() {
+		const char* logo = R"(
+	\end{verbatim}
+	{\tiny  % или \footnotesize, \scriptsize, \tiny
+		\begin{verbatim}
+			__     __    _               _            _     _              _   
+			\ \   / /__ (_) ___ ___     / \   ___ ___(_)___| |_ __ _ _ __ | |_ 
+			\ \ / / _ \| |/ __/ _ \   / _ \ / __/ __| / __| __/ _` | '_ \| __|
+			\ V / (_) | | (_|  __/  / ___ \\__ \__ \ \__ \ || (_| | | | | |_ 
+			\_/ \___/|_|\___\___| /_/   \_\___/___/_|___/\__\__,_|_| |_|\__|
+		\end{verbatim}
+	}
+	\begin{verbatim}
+		std::cout << logo;
+		std::cout << "Голосовой помощник запущен\n";
+		while (true) {
+			auto text = _recognizer->listen();
+			if (!text.empty()) {
+				processCommand(text);
+			}
+		}
+	}
+	
+} // namespace Core
+
+speech_recognizer.h
+
+#pragma once
+
+#include <portaudio.h>
+#include <vosk_api.h>
+
+namespace Speech {
+	class SpeechRecognizer {
+		public:
+		SpeechRecognizer(const std::string& modelPath,
+		const std::string& grammarJson);
+		~SpeechRecognizer();
+		
+		std::string listen();
+		
+		private:
+		VoskModel* _model = nullptr;
+		VoskRecognizer* _recognizer = nullptr;
+		PaStream* _stream = nullptr;
+		PaStreamParameters _inputParameters{};
+	};
+} // namespace Speech
+
+speech_recognizer.cpp
+
+#include "speech_recognizer.h"
+
+namespace Speech {
+	constexpr int sampleRate = 16000;
+	constexpr int framesPerBuffer = 4000;
+	
+	SpeechRecognizer::SpeechRecognizer(
+	const std::string& modelPath,
+	const std::string& grammarJson) {
+		_model = vosk_model_new(modelPath.c_str());
+		_recognizer = vosk_recognizer_new_grm(_model,
+		sampleRate,
+		grammarJson.c_str());
+		
+		PaError err = Pa_Initialize();
+		if (err != paNoError) {
+			std::cerr << "Ошибка инициализации PortAudio: "
+			<< Pa_GetErrorText(err) << "\n";
+			exit(1);
+		}
+		
+		_inputParameters.device =
+		 Pa_GetDefaultInputDevice();
+		if (_inputParameters.device == paNoDevice) {
+			std::cerr <<
+			 "Нет доступного входного устройства.\n";
+			exit(1);
+		}
+		
+		_inputParameters.channelCount = 1;
+		_inputParameters.sampleFormat = paInt16;
+		_inputParameters.suggestedLatency
+		= Pa_GetDeviceInfo(
+		_inputParameters.device)->defaultLowInputLatency;
+		_inputParameters.hostApiSpecificStreamInfo
+		 = nullptr;
+		
+		err = Pa_OpenStream(&_stream,
+		&_inputParameters,
+		nullptr,
+		sampleRate,
+		framesPerBuffer,
+		paClipOff,
+		nullptr,
+		nullptr);
+		if (err != paNoError) {
+			std::cerr << "Ошибка открытия потока: "
+			 << Pa_GetErrorText(err) << "\n";
+			exit(1);
+		}
+		
+		Pa_StartStream(_stream);
+	}
+	
+	std::string SpeechRecognizer::listen() {
+		short buffer[framesPerBuffer];
+		Pa_ReadStream(_stream, buffer, framesPerBuffer);
+		
+		if (vosk_recognizer_accept_waveform(_recognizer,
+		reinterpret_cast<const char*>(
+		buffer),
+		framesPerBuffer * sizeof(short))) {
+			const char* result = vosk_recognizer_result(
+			_recognizer);
+			std::string text(result);
+			
+			auto pos1 = text.find("\"text\" : \"");
+			if (pos1 != std::string::npos) {
+				pos1 += 10;
+				auto pos2 = text.find("\"", pos1);
+				return text.substr(pos1, pos2 - pos1);
+			}
+		}
+		return "";
+	}
+	
+	SpeechRecognizer::~SpeechRecognizer() {
+		Pa_StopStream(_stream);
+		Pa_CloseStream(_stream);
+		Pa_Terminate();
+		
+		vosk_recognizer_free(_recognizer);
+		vosk_model_free(_model);
+	}
+} // namespace Speech
+
+command_manager.h
+
+#pragma once
+
+#include <functional>
+#include <unordered_map>
+
+namespace Commands {
+	class CommandManager {
+		public:
+		CommandManager();
+		
+		void process(const std::string& text);
+		
+		private:
+		struct CommandData {
+			std::string voiceTrigger;
+			std::function<void()> handler;
+		};
+		
+		std::unordered_map<std::string,
+		 CommandData> _commands;
+		
+		template<typename F>
+		void registerCommand(std::string name,
+		std::string voiceTrigger,
+		F&& handler) {
+			_commands.emplace(std::move(name),
+			CommandData{std::move(voiceTrigger),
+				std::forward<F>(handler)});
+		}
+		
+		void logTime();
+	};
+} // namespace Commands
+
+command_manager.cpp
+
+#include "command_manager.h"
+#include <chrono>
+#include <iomanip>
+
+namespace Commands {
+	CommandManager::CommandManager() {
+		registerCommand("start_machine",
+		 "включить станок", []() {
+			std::cout << "Станок включен\n";
+		});
+		registerCommand("stop_machine",
+		 "выключить станок", []() {
+			std::cout << "Станок выключен\n";
+		});
+		registerCommand("oil_feed",
+		 "подать масло", []() {
+			std::cout << "Масло подано\n";
+		});
+	}
+	
+	void CommandManager::process(
+	const std::string& text) {
+		if (text.find("алиса") ==
+		 std::string::npos) {
+			return;
+		}
+		
+		for (const auto& [name, data] : _commands) {
+			if (text.find(data.voiceTrigger) !=
+			 std::string::npos) {
+				logTime();
+				data.handler();
+				return;
+			}
+		}
+	}
+	
+	void CommandManager::logTime() {
+		auto now = std::chrono::system_clock::now();
+		auto now_time_t =
+		 std::chrono::system_clock::to_time_t(now);
+		std::cout << "["
+		<< std::put_time(std::localtime(&now_time_t),
+		"%Y-%m-%d %H:%M:%S")
+		<< "] ";
+	}
+} // namespace Commands
+\end{verbatim}
+
 \newpage
 
 \section*{Ведомость дипломного проекта}
