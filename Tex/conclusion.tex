@@ -23,7 +23,7 @@
 \renewcommand{\refname}{\textbf{Список использованных источников}}
 \DeclareFieldFormat{url}{[Электронный ресурс]. -- Режим доступа : \url{#1}}
 \DeclareFieldFormat{title}{{#1}}
-
+\DeclareFieldFormat{labelnumberwidth}{#1} % Убирает квадратные скобки
 
 \defbibenvironment{bibliography}
 {\list
@@ -41,7 +41,7 @@
 {\item}
 
 \addcontentsline{toc}{section}{Список использованных источников}
-\emergencystretch=5pt
+
 \printbibliography
 
 
