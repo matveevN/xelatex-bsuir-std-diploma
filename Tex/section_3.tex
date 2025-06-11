@@ -140,15 +140,15 @@
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{constructor_SpeechRecognizer.jpg}
+	\includegraphics[scale=0.42]{constructor_SpeechRecognizer.jpg}
 	\caption{Конструктор SpeechRecognizer}
 		\label{fig:constructor_SpeechRecognizer}
 \end{figure}
-Этот конструктор выполняет ключевые операции инициализации: загружает модель распознавания речи Vosk из указанного пути, настраивает параметры аудиовхода через библиотеку PortAudio (частота дискретизации 16 кГц, моно-канал, 16-битный формат) и запускает аудиопоток, в котором непрерывно происходит захват  через метод listen() представленном на рисунке \ref{fig:listenSpeechRecognizer}.
+Этот конструктор выполняет ключевые операции инициализации: загружает модель распознавания речи Vosk, настраивает параметры аудиовхода через библиотеку PortAudio (частота дискретизации 16 кГц, моно-канал, 16-битный формат) и запускает аудиопоток, в котором непрерывно происходит захват  через метод listen() представленном на рисунке ~\ref{fig:listenSpeechRecognizer}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.62]{listenSpeechRecognizer.jpg}
+	\includegraphics[scale=0.63]{listenSpeechRecognizer.jpg}
 	\caption{Метод listen() класса SpeechRecognizer}
 	\label{fig:listenSpeechRecognizer}
 \end{figure}
@@ -182,18 +182,16 @@
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.8]{registerCommand_CommandManager.jpg}
+	\includegraphics[scale=0.87]{registerCommand_CommandManager.jpg}
 	\caption{Метод registerCommand()  класса CommandManager}
 	\label{fig:registerCommand_CommandManager}
 \end{figure}
 
-Метод registerCommand добавляет новую команду в систему управления. Он принимает три параметра: техническое имя команды, голосовую фразу-триггер и обработчик команды. При вызове метод сохраняет команду во внутреннем хранилище commands, связывая между собой имя команды, её голосовой триггер и функцию-обработчик. Техническое имя и голосовой триггер перемещаются в хранилище, а обработчик передается с сохранением категории значения (lvalue или rvalue). Это позволяет регистрировать различные команды с их обработчиками, которые система сможет выполнять при распознавании соответствующих голосовых фраз.
-
- и после этого созданы объект commandManager вызывает метод process() которые представлен на рисунке \ref{fig:process_CommandManager}.
+Метод registerCommand добавляет новую команду в систему управления. Он принимает три параметра: техническое имя команды, голосовую фразу-триггер и обработчик команды. При вызове метод сохраняет команду во внутреннем хранилище commands, связывая между собой имя команды, её голосовой триггер и функцию-обработчик. Техническое имя и голосовой триггер перемещаются в хранилище, а обработчик передается с сохранением категории значения (lvalue или rvalue). Это позволяет регистрировать различные команды с их обработчиками, которые система сможет выполнять при распознавании соответствующих голосовых фраз. После этого созданы объект commandManager вызывает метод process() представлен на рисунке ~\ref{fig:process_CommandManager}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.8]{process_CommandManager.jpg}
+	\includegraphics[scale=0.82]{process_CommandManager.jpg}
 	\caption{Метод process()  класса CommandManager}
 	\label{fig:process_CommandManager}
 \end{figure}
